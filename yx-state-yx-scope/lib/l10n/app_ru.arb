@@ -1,0 +1,32 @@
+{
+  "appTitle": "Рик и Морти",
+  "language": "Язык",
+  "theme": "Тема",
+  "lightTheme": "Светлая",
+  "darkTheme": "Тёмная",
+  "english": "Английский",
+  "russian": "Русский",
+  "findCharacter": "Найти персонажа...",
+  "failedToLoadCharacters": "Не удалось загрузить персонажей",
+  "refresh": "Повторить",
+  "nothingFound": "Ничего не найдено по запросу",
+  "loadingCharacters": "Загружаем персонажей...",
+  "species": "Разновидность",
+  "type": "Тип",
+  "notSpecified": "Не указан",
+  "gender": "Гендер",
+  "origin": "Происхождение",
+  "lastKnownLocation": "Последнее известное местоположение",
+  "errorTimeout": "Превышено время ожидания ответа сервера",
+  "errorNoInternet": "Нет подключения к интернету",
+  "errorTooManyRequests": "Слишком много запросов, попробуйте через {seconds} сек.",
+  "@errorTooManyRequests": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "errorServerUnavailable": "Сервер временно недоступен, попробуйте позже",
+  "errorUnknown": "Не удалось загрузить персонажей"
+}

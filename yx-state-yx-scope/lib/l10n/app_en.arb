@@ -1,0 +1,32 @@
+{
+  "appTitle": "Rick and Morty",
+  "language": "Language",
+  "theme": "Theme",
+  "lightTheme": "Light",
+  "darkTheme": "Dark",
+  "english": "English",
+  "russian": "Russian",
+  "findCharacter": "Find character...",
+  "failedToLoadCharacters": "Failed to load characters",
+  "refresh": "Refresh",
+  "nothingFound": "Nothing found for your request",
+  "loadingCharacters": "Loading Characters...",
+  "species": "Species",
+  "type": "Type",
+  "notSpecified": "Not specified",
+  "gender": "Gender",
+  "origin": "Origin",
+  "lastKnownLocation": "Last known location",
+  "errorTimeout": "The server response timed out",
+  "errorNoInternet": "No internet connection",
+  "errorTooManyRequests": "Too many requests, try again in {seconds} sec.",
+  "@errorTooManyRequests": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "errorServerUnavailable": "The server is temporarily unavailable. Please try again later.",
+  "errorUnknown": "Failed to load characters"
+}

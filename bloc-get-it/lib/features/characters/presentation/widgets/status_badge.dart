@@ -1,0 +1,42 @@
+import 'package:flutter/material.dart';
+
+class StatusBadge extends StatelessWidget {
+  const StatusBadge({super.key, required this.status});
+
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final normalized = status.toLowerCase();
+
+    final color = switch (normalized) {
+      'alive' => Colors.green,
+      'dead' => Colors.red,
+      _ => Colors.grey,
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            status.isEmpty ? 'Unknown' : status,
+            style: Theme.of(context).textTheme.labelLarge
+                ?.copyWith(color: color),
+          ),
+        ],
+      ),
+    );
+  }
+}
