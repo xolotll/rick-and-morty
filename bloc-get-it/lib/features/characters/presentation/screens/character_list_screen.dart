@@ -38,10 +38,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   void _onScroll() {
     if (!_scrollController.hasClients) return;
 
-    final state = _bloc.state;
-    if (state.isLoadingMore || state.nextUrl == null) return;
-
-    if (_scrollController.position.extentAfter < 1200) {
+    if (_scrollController.position.extentAfter < 800) {
       _bloc.add(const CharactersNextPageRequested());
     }
   }

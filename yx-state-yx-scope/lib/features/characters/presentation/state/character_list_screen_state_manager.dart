@@ -1,22 +1,22 @@
 import 'dart:async';
+
 import 'package:yx_scope/yx_scope.dart';
 import 'package:yx_state/yx_state.dart';
 
 import '../../../../core/error/app_exception.dart';
-import '../../data/models/character_list_screen_state_model.dart';
+import '../models/character_list_screen_state_model.dart';
 import '../../domain/entities/character.dart';
-import '../../domain/usecases/get_characters.dart';
+import '../../domain/repositories/character_repository.dart';
 
 class CharacterListScreenStateManager
     extends StateManager<CharacterListScreenState>
     implements AsyncLifecycle {
-  CharacterListScreenStateManager(this._getCharacters)
+  CharacterListScreenStateManager(this.characterRepository)
     : super(const CharacterListScreenInitial());
 
-  final GetCharacters _getCharacters;
+  final CharacterRepository characterRepository;
 
   int _operationId = 0;
-  bool _isLoadingNextPage = false;
   Timer? _searchDebounce;
 
   Future<void> onRequested() async {
@@ -25,7 +25,7 @@ class CharacterListScreenStateManager
 
       emit(const CharacterListScreenLoading());
       try {
-        final result = await _getCharacters();
+        final result = await characterRepository.getCharacters();
         if (operationId != _operationId || emit.isDone) return;
 
         emit(
@@ -50,50 +50,53 @@ class CharacterListScreenStateManager
 
     _searchDebounce?.cancel();
 
-    _searchDebounce = Timer(
-      const Duration(milliseconds: 350),
-          () {
-        unawaited(
-          handle((emit) async {
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+      unawaited(
+        handle((emit) async {
+          if (operationId != _operationId || emit.isDone) return;
+
+          emit(const CharacterListScreenLoading());
+
+          try {
+            final result = await characterRepository.getCharacters(
+              query: query,
+            );
+
             if (operationId != _operationId || emit.isDone) return;
 
-            emit(const CharacterListScreenLoading());
+            emit(
+              CharacterListScreenLoaded(
+                characters: result.characters,
+                query: query,
+                nextUrl: result.nextUrl,
+              ),
+            );
+          } on AppException catch (error, stackTrace) {
+            if (operationId != _operationId || emit.isDone) return;
 
-            try {
-              final result = await _getCharacters(query: query);
+            addError(error, stackTrace);
 
-              if (operationId != _operationId || emit.isDone) return;
-
+            if (error.type == AppErrorType.nothingFound) {
               emit(
                 CharacterListScreenLoaded(
-                  characters: result.characters,
-                  query: query,
-                  nextUrl: result.nextUrl,
-                ),
-              );
-            } on AppException catch (error, stackTrace) {
-              if (operationId != _operationId || emit.isDone) return;
-
-              addError(error, stackTrace);
-
-              emit(
-                CharacterListScreenFailure(
-                  error: error,
+                  isLoadingMore: false,
+                  characters: [],
                   query: query,
                 ),
               );
+            } else {
+              emit(CharacterListScreenFailure(error: error, query: query));
             }
-          }),
-        );
-      },
-    );
+          }
+        }),
+      );
+    });
   }
 
   Future<void> onNextPageRequested() async {
     await handle((emit) async {
-      if (_isLoadingNextPage) return;
-
       final currentState = state;
+
       final List<Character> characters;
       final String query;
       final String? nextUrl;
@@ -119,8 +122,6 @@ class CharacterListScreenStateManager
 
       if (nextUrl == null) return;
 
-      _isLoadingNextPage = true;
-
       final operationId = _operationId;
 
       emit(
@@ -132,7 +133,7 @@ class CharacterListScreenStateManager
         ),
       );
       try {
-        final result = await _getCharacters(url: nextUrl);
+        final result = await characterRepository.getCharacters(url: nextUrl);
         if (operationId != _operationId || emit.isDone) return;
 
         final latestState = state;
@@ -160,8 +161,6 @@ class CharacterListScreenStateManager
             nextUrl: nextUrl,
           ),
         );
-      } finally {
-        _isLoadingNextPage = false;
       }
     });
   }

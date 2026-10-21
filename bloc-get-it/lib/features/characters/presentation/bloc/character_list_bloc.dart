@@ -1,14 +1,13 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/repositories/character_repository.dart';
 import '../../../../core/error/app_exception.dart';
-import '../../domain/entities/character.dart';
-import '../../domain/usecases/get_characters.dart';
 import 'character_list_event.dart';
 import 'character_list_state.dart';
 
 class CharacterListBloc extends Bloc<CharacterListEvent, CharacterListState> {
-  CharacterListBloc({required this.getCharacters})
+  CharacterListBloc({required this.characterRepository})
     : super(const CharacterListState()) {
     on<CharactersRequested>(_onRequested, transformer: restartable());
     on<CharacterSearchChanged>(_onSearchChanged, transformer: restartable());
@@ -18,7 +17,7 @@ class CharacterListBloc extends Bloc<CharacterListEvent, CharacterListState> {
     );
   }
 
-  final GetCharacters getCharacters;
+  final CharacterRepository characterRepository;
 
   Future<void> _onRequested(
     CharactersRequested event,
@@ -26,7 +25,9 @@ class CharacterListBloc extends Bloc<CharacterListEvent, CharacterListState> {
   ) async {
     emit(state.copyWith(status: CharacterListStatus.loading, clearError: true));
     try {
-      final result = await getCharacters(query: state.query);
+      final result = await characterRepository.getCharacters(
+        query: state.query,
+      );
 
       if (emit.isDone) return;
 
@@ -57,22 +58,21 @@ class CharacterListBloc extends Bloc<CharacterListEvent, CharacterListState> {
     CharactersNextPageRequested event,
     Emitter<CharacterListState> emit,
   ) async {
-    try {
-      if (state.isLoadingMore || state.nextUrl == null) {
-        return;
-      }
-      emit(state.copyWith(isLoadingMore: true, clearError: true));
+    final url = state.nextUrl;
 
-      final result = await getCharacters(url: state.nextUrl);
+    if (state.isLoadingMore || url == null) return;
+
+    emit(state.copyWith(isLoadingMore: true, clearError: true));
+
+    try {
+      final result = await characterRepository.getCharacters(url: url);
 
       if (emit.isDone) return;
-
-      final combined = <Character>[...state.characters, ...result.characters];
 
       emit(
         state.copyWith(
           status: CharacterListStatus.success,
-          characters: combined,
+          characters: [...state.characters, ...result.characters],
           nextUrl: result.nextUrl,
           clearNextUrl: result.nextUrl == null,
           isLoadingMore: false,
@@ -99,7 +99,7 @@ class CharacterListBloc extends Bloc<CharacterListEvent, CharacterListState> {
     if (emit.isDone) return;
 
     try {
-      final result = await getCharacters(query: query);
+      final result = await characterRepository.getCharacters(query: query);
 
       if (emit.isDone) return;
 
@@ -117,13 +117,23 @@ class CharacterListBloc extends Bloc<CharacterListEvent, CharacterListState> {
     } on AppException catch (error) {
       if (emit.isDone) return;
 
-      emit(
-        state.copyWith(
-          status: CharacterListStatus.failure,
-          error: error,
-          isLoadingMore: false,
-        ),
-      );
+      if (error.type == AppErrorType.nothingFound) {
+        emit(
+          state.copyWith(
+            status: CharacterListStatus.success,
+            isLoadingMore: false,
+            characters: [],
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            status: CharacterListStatus.failure,
+            error: error,
+            isLoadingMore: false,
+          ),
+        );
+      }
     }
   }
 }

@@ -1,17 +1,21 @@
 import 'package:dio/dio.dart';
 
-class ApiClient {
-  ApiClient._();
+import 'dio_exception_mapper.dart';
 
-  static Dio createDio({required String baseUrl}) {
-    return Dio(
-      BaseOptions(
-        baseUrl: baseUrl,
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
-        sendTimeout: const Duration(seconds: 15),
-        headers: const {'Accept': 'application/json'},
-      ),
-    );
+class ApiClient {
+  ApiClient({required this._dio, required this._exceptionMapper});
+
+  final Dio _dio;
+  final DioExceptionMapper _exceptionMapper;
+
+  Future<Response<T>> get<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      return await _dio.get<T>(path, queryParameters: queryParameters);
+    } on DioException catch (error) {
+      throw _exceptionMapper.map(error);
+    }
   }
 }

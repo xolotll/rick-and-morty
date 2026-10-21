@@ -1,72 +1,30 @@
-import 'package:dio/dio.dart';
-
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/error/app_exception.dart';
-import '../models/character_page_model.dart';
+import '../../../../core/network/api_client.dart';
+import '../models/character_page_model/character_page_model.dart';
 
 class CharacterRemoteDataSource {
-  CharacterRemoteDataSource({required this._dio});
+  CharacterRemoteDataSource({required this._apiClient});
 
-  final Dio _dio;
+  final ApiClient _apiClient;
 
   Future<CharacterPageModel> getCharacters({
     String? url,
     String query = '',
   }) async {
-    try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        url ?? ApiConstants.charactersPath,
-        queryParameters: url == null
-            ? {if (query.trim().isNotEmpty) 'name': query.trim()}
-            : null,
-      );
-      // print(response);
-      // print('');
-      // print('-' * 25);
-      // print('');
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      url ?? ApiConstants.charactersPath,
+      queryParameters: url == null
+          ? {if (query.trim().isNotEmpty) 'name': query.trim()}
+          : null,
+    );
 
-      final data = response.data;
+    final data = response.data;
 
-      if (data == null) {
-        throw const AppException(AppErrorType.unknown);
-      }
-
-      return CharacterPageModel.fromJson(data);
-    } on DioException catch (error) {
-      if (error.response?.statusCode == 404) {
-        return const CharacterPageModel(characters: []);
-      }
-
-      throw _exceptionFor(error);
-    }
-  }
-
-  AppException _exceptionFor(DioException error) {
-    if (error.type == DioExceptionType.connectionTimeout ||
-        error.type == DioExceptionType.receiveTimeout ||
-        error.type == DioExceptionType.sendTimeout) {
-      return const AppException(AppErrorType.timeout);
+    if (data == null) {
+      throw const AppException(AppErrorType.unknown);
     }
 
-    if (error.type == DioExceptionType.connectionError) {
-      return const AppException(AppErrorType.noInternet);
-    }
-
-    final statusCode = error.response?.statusCode;
-
-    if (statusCode == 429) {
-      final retryAfter = error.response?.headers.value('retry-after');
-      final seconds = int.tryParse(retryAfter ?? '');
-      return AppException(
-        AppErrorType.tooManyRequests,
-        retryAfter: seconds == null ? null : Duration(seconds: seconds),
-      );
-    }
-
-    if (statusCode != null && statusCode >= 500) {
-      return const AppException(AppErrorType.serverUnavailable);
-    }
-
-    return const AppException(AppErrorType.unknown);
+    return CharacterPageModel.fromJson(data);
   }
 }

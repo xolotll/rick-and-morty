@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/app_scope.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
-import '../../data/models/character_list_screen_state_model.dart';
+import '../models/character_list_screen_state_model.dart';
 import '../../domain/entities/character.dart';
 import '../state/character_list_screen_state_manager.dart';
 import '../widgets/character_empty_view.dart';
@@ -78,7 +78,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       return;
     }
 
-    if (_scrollController.position.extentAfter < 1200) {
+    if (_scrollController.position.extentAfter < 800) {
       _stateManager.onNextPageRequested();
     }
   }

@@ -5,6 +5,7 @@ enum AppErrorType {
   noInternet,
   tooManyRequests,
   serverUnavailable,
+  nothingFound,
   unknown,
 }
 
@@ -30,6 +31,9 @@ class AppException implements Exception {
 
       case AppErrorType.unknown:
         return l10n.errorUnknown;
+
+      case AppErrorType.nothingFound:
+        return l10n.nothingFound;
     }
   }
 

@@ -56,7 +56,12 @@ class CharacterGrid extends StatelessWidget {
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: CircularProgressIndicator()),
+              child: Column(
+                children: [
+                  Center(child: CircularProgressIndicator()),
+                  SizedBox(height: 60),
+                ],
+              ),
             ),
           )
         else if (errorMessage != null)
@@ -71,6 +76,7 @@ class CharacterGrid extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(errorMessage!),
                     TextButton(onPressed: onRetry, child: Text(l10n.refresh)),
+                    SizedBox(height: 60),
                   ],
                 ),
               ),
