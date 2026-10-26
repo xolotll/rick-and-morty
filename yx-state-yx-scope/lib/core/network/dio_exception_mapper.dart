@@ -30,7 +30,7 @@ class DioExceptionMapper {
     }
 
     if (statusCode == 404) {
-      return const AppException(AppErrorType.nothingFound);
+      return const AppException(AppErrorType.nothingFounded);
     }
 
     if (statusCode != null && statusCode >= 500) {

@@ -850,6 +850,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  yx_state_transformers:
+    dependency: "direct main"
+    description:
+      name: yx_state_transformers
+      sha256: d54798dd6ce503317c29a024bd02fb22ed2b1b4f550eb5027c4c14fc8a2b88e5
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
 sdks:
   dart: ">=3.13.5 <4.0.0"
   flutter: ">=3.44.0"

@@ -1,42 +1,38 @@
 import '../../../../core/error/app_exception.dart';
 import '../../domain/entities/character.dart';
+import 'character_list_screen_bottom_model.dart';
 
 sealed class CharacterListScreenState {
-  const CharacterListScreenState();
+  const CharacterListScreenState({this.query});
+
+  final String? query;
 }
 
 class CharacterListScreenInitial extends CharacterListScreenState {
-  const CharacterListScreenInitial();
+  const CharacterListScreenInitial({super.query});
 }
 
 class CharacterListScreenLoading extends CharacterListScreenState {
-  const CharacterListScreenLoading();
+  const CharacterListScreenLoading({super.query});
+}
+
+class CharacterListScreenNothingFounded extends CharacterListScreenState {
+  const CharacterListScreenNothingFounded({super.query});
 }
 
 class CharacterListScreenLoaded extends CharacterListScreenState {
   const CharacterListScreenLoaded({
+    super.query,
     this.characters = const [],
-    this.query = '',
-    this.nextUrl,
-    this.isLoadingMore = false,
+    required this.bottom,
   });
 
   final List<Character> characters;
-  final String query;
-  final String? nextUrl;
-  final bool isLoadingMore;
+  final CharacterListScreenBottomModel bottom;
 }
 
 class CharacterListScreenFailure extends CharacterListScreenState {
-  const CharacterListScreenFailure({
-    required this.error,
-    this.characters = const [],
-    this.query = '',
-    this.nextUrl,
-  });
+  const CharacterListScreenFailure({super.query, required this.error});
 
   final AppException error;
-  final List<Character> characters;
-  final String query;
-  final String? nextUrl;
 }

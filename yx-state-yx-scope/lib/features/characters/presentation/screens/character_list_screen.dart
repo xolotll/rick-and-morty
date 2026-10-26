@@ -71,13 +71,6 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   void _onScroll() {
     if (!_scrollController.hasClients) return;
 
-    final state = _stateManager.state;
-    if (state is! CharacterListScreenLoaded ||
-        state.isLoadingMore ||
-        state.nextUrl == null) {
-      return;
-    }
-
     if (_scrollController.position.extentAfter < 800) {
       _stateManager.onNextPageRequested();
     }
@@ -162,37 +155,24 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                     return const CharacterLoadingView();
 
                   case CharacterListScreenFailure():
-                    if (state.characters.isEmpty) {
-                      return CharacterErrorView(
-                        message: state.error.localize(l10n),
-                        onRetry: state.query.isEmpty
-                            ? _stateManager.onRequested
-                            : () => _stateManager.onSearchChanged(state.query),
-                      );
-                    }
-
-                    return CharacterGrid(
-                      characters: state.characters,
-                      controller: _scrollController,
-                      onCharacterTap: _openDetails,
-                      isLoadingMore: false,
-                      errorMessage: state.error.localize(l10n),
-                      onRetry: _stateManager.onNextPageRequested,
+                    return CharacterErrorView(
+                      message: state.error.localize(l10n),
+                      onRetry: state.query != null
+                          ? () => _stateManager.onSearchChanged(state.query!)
+                          : _stateManager.onRequested,
                     );
 
                   case CharacterListScreenLoaded():
-                    if (state.characters.isEmpty) {
-                      return CharacterEmptyView(query: state.query);
-                    }
-
                     return CharacterGrid(
                       characters: state.characters,
                       controller: _scrollController,
                       onCharacterTap: _openDetails,
-                      isLoadingMore: state.isLoadingMore,
-                      errorMessage: null,
+                      bottom: state.bottom,
                       onRetry: _stateManager.onNextPageRequested,
                     );
+
+                  case CharacterListScreenNothingFounded():
+                    return CharacterEmptyView(query: state.query);
                 }
               },
             ),

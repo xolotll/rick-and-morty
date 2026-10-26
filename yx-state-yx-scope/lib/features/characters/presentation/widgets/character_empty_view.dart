@@ -5,7 +5,7 @@ import '../../../../l10n/app_localizations.dart';
 class CharacterEmptyView extends StatelessWidget {
   const CharacterEmptyView({super.key, required this.query});
 
-  final String query;
+  final String? query;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class CharacterEmptyView extends StatelessWidget {
         children: [
           const Icon(Icons.search_off, size: 56),
           const SizedBox(height: 16),
-          Text('${l10n.nothingFound} «$query»'),
+          Text('${l10n.nothingFound}${(query != null) ? ' «$query»' : ''}'),
         ],
       ),
     );

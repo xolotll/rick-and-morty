@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../l10n/app_localizations.dart';
+import '../widgets/scroll_bottom_status_bar.dart';
 import '../../domain/entities/character.dart';
+import '../models/character_list_screen_bottom_model.dart';
 import 'character_card.dart';
 
 class CharacterGrid extends StatelessWidget {
@@ -10,22 +11,18 @@ class CharacterGrid extends StatelessWidget {
     required this.characters,
     required this.controller,
     required this.onCharacterTap,
-    required this.isLoadingMore,
-    required this.errorMessage,
+    required this.bottom,
     required this.onRetry,
   });
 
   final List<Character> characters;
   final ScrollController controller;
   final ValueChanged<Character> onCharacterTap;
-  final bool isLoadingMore;
-  final String? errorMessage;
+  final CharacterListScreenBottomModel bottom;
   final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return CustomScrollView(
       controller: controller,
       slivers: [
@@ -51,39 +48,9 @@ class CharacterGrid extends StatelessWidget {
             }, childCount: characters.length),
           ),
         ),
-
-        if (isLoadingMore)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Column(
-                children: [
-                  Center(child: CircularProgressIndicator()),
-                  SizedBox(height: 60),
-                ],
-              ),
-            ),
-          )
-        else if (errorMessage != null)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.cloud_off_outlined),
-                    const SizedBox(height: 8),
-                    Text(errorMessage!),
-                    TextButton(onPressed: onRetry, child: Text(l10n.refresh)),
-                    SizedBox(height: 60),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-        SliverToBoxAdapter(child: SizedBox(height: 50)),
+        SliverToBoxAdapter(
+          child: ScrollBottomStatusBar(bottom: bottom, onRetry: onRetry),
+        ),
       ],
     );
   }

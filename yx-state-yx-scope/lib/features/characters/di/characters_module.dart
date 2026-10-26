@@ -32,13 +32,8 @@ class CharactersScopeModule extends ScopeModule<AppScopeContainer>
     dispose: (dep) async => dep.dispose(),
   );
 
-  late final _characterListScreenStateManagerDep = dep(
-    () => CharacterListScreenStateManager(_characterRepositoryDep.get),
-  );
-
   @override
-  CharacterListScreenStateManager get stateManager =>
-      _characterListScreenStateManagerDep.get;
+  CharacterListScreenStateManager get stateManager => _stateManagerDep.get;
 
   @override
   AsyncDep get stateManagerDep => _stateManagerDep;
